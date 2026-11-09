@@ -1,0 +1,1 @@
+<h1>New order #{{ $order->id }}</h1><p>{{ $order->customer_name }} · {{ $order->mobile }}</p><p>{{ $order->address }}</p><ul>@foreach($order->items as $item)<li>{{ $item->product_name }} × {{ $item->quantity }} — ${{ number_format($item->price * $item->quantity, 2) }}</li>@endforeach</ul><p><strong>Total: ${{ number_format($order->total, 2) }}</strong></p>
