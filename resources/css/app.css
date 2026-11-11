@@ -13,3 +13,26 @@
     button, .button { @apply cursor-pointer; }
     input, textarea { @apply outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100; }
 }
+        /* Desktop */
+        #baby-hero {
+            background-size: cover;
+            background-position: center;
+        }
+    
+        /* Mobile */
+        @media (max-width: 640px) {
+            #baby-hero {
+                background-size: contain;
+                background-position: center top;
+                background-color: #fff1f2;
+            }
+            
+
+        }
+                @media (max-width: 639px) {
+                    #baby-hero {
+                        background-image: none !important;
+                        min-height: auto;
+                    }
+                }
+

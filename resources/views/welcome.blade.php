@@ -5,21 +5,34 @@
 {{-- =====================================================
      HERO
 ===================================================== --}}
+
 <section
     id="baby-hero"
-    class="relative isolate flex min-h-[420px] items-center overflow-hidden rounded-[28px]
+    class="relative isolate flex w-full flex-col overflow-hidden
            bg-gradient-to-br from-rose-50 via-emerald-50 to-amber-50
-           px-8 py-16 sm:px-16 sm:py-20"
+           sm:min-h-[420px] sm:flex-row sm:items-center sm:px-16 sm:py-20"
     @if($siteSettings?->hero_image)
-        style="background-image: linear-gradient(90deg, rgba(253,242,248,.93), rgba(236,253,245,.65)), url('{{ asset('storage/'.$siteSettings->hero_image) }}');
-               background-size: cover; background-position: center;"
+        style="
+            background-image:
+                linear-gradient(90deg, rgba(253,242,248,.25), rgba(236,253,245,.10)),
+                url('{{ asset('storage/'.$siteSettings->hero_image) }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        "
     @endif
 >
-    {{-- Floating decorative blobs --}}
-    <div class="hero-blob absolute -left-20 -top-20 h-72 w-72 rounded-full bg-rose-200/40 blur-3xl" aria-hidden="true"></div>
-    <div class="hero-blob absolute -bottom-24 right-10 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl" aria-hidden="true"></div>
+    {{-- Mobile image: displays the complete image --}}
+    @if($siteSettings?->hero_image)
+        <img
+            src="{{ asset('storage/'.$siteSettings->hero_image) }}"
+            alt="Little Nest baby shop"
+            class="block h-auto w-full sm:hidden"
+        >
+    @endif
 
-    <div class="relative flex w-full items-center justify-between gap-8">
+    {{-- Hero content --}}
+    {{-- <div class="relative flex w-full items-center justify-between gap-8 px-5 py-10 sm:px-0 sm:py-0">
         <div class="max-w-2xl">
             <div class="hero-badge mb-4 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1.5 shadow-sm backdrop-blur">
                 <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
@@ -28,29 +41,33 @@
                 </p>
             </div>
 
-            <h1 class="hero-title my-4 max-w-xl text-5xl font-extrabold leading-[1.05] tracking-tighter text-slate-800 sm:text-7xl">
-                {{ $siteSettings?->hero_title ?? 'Thoughtful essentials for your little nest.' }}
+            <h1 class="hero-title my-4 max-w-xl text-4xl font-extrabold leading-tight tracking-tighter text-slate-800 sm:text-7xl">
+                {{ $siteSettings?->hero_title }}
             </h1>
 
-            <p class="hero-description max-w-md text-lg leading-relaxed text-slate-500">
-                {{ $siteSettings?->hero_description ?? 'Beautiful, useful baby goods chosen for everyday comfort and joyful gifting.' }}
+            <p class="hero-description max-w-md text-base leading-relaxed text-slate-500 sm:text-lg">
+                {{ $siteSettings?->hero_description }}
             </p>
 
-            <div class="hero-cta mt-8 flex flex-wrap gap-3">
-                <a href="#products" class="inline-flex items-center gap-2 rounded-full bg-rose-400 px-7 py-3.5 font-bold text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow-rose-300">
-                    Shop the collection
-                    <span aria-hidden="true">→</span>
+            <div class="hero-cta mt-6 flex flex-wrap gap-3">
+                <a href="#products"
+                   class="rounded-full bg-rose-400 px-6 py-3 font-bold text-white shadow-lg">
+                    Shop the collection →
                 </a>
-                <a href="#products" class="inline-flex items-center gap-2 rounded-full bg-white/80 px-7 py-3.5 font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
+
+                <a href="#products"
+                   class="rounded-full bg-white/80 px-6 py-3 font-semibold text-slate-700 shadow-sm">
                     Browse new arrivals
                 </a>
             </div>
         </div>
 
-        {{-- Decorative heart --}}
-        <div class="hero-heart hidden select-none text-[14rem] leading-none text-rose-300/70 sm:block" aria-hidden="true">♡</div>
-    </div>
+        <div class="hero-heart hidden select-none text-[14rem] leading-none text-rose-300/70 sm:block" aria-hidden="true">
+            ♡
+        </div>
+    </div> --}}
 </section>
+
 
 {{-- =====================================================
      SECTION HEADER
@@ -79,7 +96,7 @@
 {{-- =====================================================
      PRODUCT GRID
 ===================================================== --}}
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+<div class="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     @forelse($products as $product)
         <article
             data-product-card

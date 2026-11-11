@@ -63,3 +63,29 @@ document.querySelector('[data-confirm-remove]')?.addEventListener('click', () =>
         form.requestSubmit(removeButton);
     }
 });
+
+const adminSidebar = document.querySelector('#admin-sidebar');
+const adminMenuToggle = document.querySelector('[data-admin-menu-toggle]');
+const adminMenuBackdrop = document.querySelector('[data-admin-menu-backdrop]');
+const adminMenuClose = document.querySelector('[data-admin-menu-close]');
+
+const closeAdminMenu = () => {
+    adminSidebar?.classList.add('-translate-x-full');
+    adminMenuBackdrop?.classList.add('hidden');
+    adminMenuToggle?.setAttribute('aria-expanded', 'false');
+};
+
+adminMenuToggle?.addEventListener('click', () => {
+    adminSidebar?.classList.remove('-translate-x-full');
+    adminMenuBackdrop?.classList.remove('hidden');
+    adminMenuToggle.setAttribute('aria-expanded', 'true');
+});
+
+adminMenuBackdrop?.addEventListener('click', closeAdminMenu);
+adminMenuClose?.addEventListener('click', closeAdminMenu);
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && adminMenuBackdrop && !adminMenuBackdrop.classList.contains('hidden')) {
+        closeAdminMenu();
+    }
+});
