@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\NewOrderMail;
+use App\Models\HeroSlide;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +25,14 @@ class StoreController extends Controller
                 ->orWhere('description', 'like', '%' . $search . '%')))
             ->latest()->get();
 
-        return view('welcome', ['products' => $products, 'search' => $search, 'siteSettings' => SiteSetting::first()]);
+        return view('welcome', [
+            'products' => $products,
+            'search' => $search,
+            'siteSettings' => SiteSetting::first(),
+            'heroSlides' => HeroSlide::where('is_active', true)
+                ->orderBy('sort_order')
+                ->get(),
+        ]);
     }
 
     public function addToCart(Request $request, Product $product): RedirectResponse

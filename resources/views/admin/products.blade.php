@@ -13,10 +13,23 @@
                     class="grid gap-4 md:grid-cols-2"><label class="block font-bold">Company name<input
                             class="mt-1 block w-full rounded-lg border border-orange-100 bg-orange-50 px-3 py-2"
                             name="company_name"
-                            value="{{ old('company_name', $siteSettings?->company_name ?? 'Little Nest') }}"></label><label
-                        class="block font-bold">Header image<input
-                            class="mt-1 block w-full rounded-lg border border-orange-100 bg-orange-50 px-3 py-2"
-                            type="file" name="hero_image" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+                            value="{{ old('company_name', $siteSettings?->company_name ?? 'Little Nest') }}"></label>
+                         <label class="block font-bold">
+    Upload header images
+
+    <input
+        class="mt-1 block w-full rounded-lg border border-orange-100 bg-orange-50 px-3 py-2"
+        type="file"
+        name="hero_images[]"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+    >
+
+    <span class="mt-1 block text-sm font-normal text-slate-500">
+        You can select multiple images at once.
+    </span>
+</label>
+
                 </div><label class="block font-bold">Header title<input
                         class="mt-1 block w-full rounded-lg border border-orange-100 bg-orange-50 px-3 py-2"
                         name="hero_title" value="{{ old('hero_title', $siteSettings?->hero_title ?? '') }}"></label><label

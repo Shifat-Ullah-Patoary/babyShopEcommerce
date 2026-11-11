@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SiteSetting;
+use App\Models\HeroSlide;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -81,34 +82,109 @@ class AdminController extends Controller
         return view('admin.products', ['products' => Product::latest()->get(), 'siteSettings' => SiteSetting::first()]);
     }
 
+    // public function updateSiteSettings(Request $request): RedirectResponse
+    // {
+    //     $data = $request->validate([
+    //         'company_name' => ['nullable','string', 'max:120'],
+    //         'hero_title' => ['nullable','string', 'max:180'],
+    //         'hero_description' => ['nullable','string', 'max:1000'],
+    //         'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+    //         'delivery_charge' => ['nullable','numeric', 'min:0', 'max:99999999.99'],
+    //     ]);
+    //     $settings = SiteSetting::firstOrCreate([]);
+
+    //   // Handle image upload (unchanged)
+    // if ($request->hasFile('hero_image')) {
+    //     $this->deleteStoredImage($settings->hero_image);
+    //     $data['hero_image'] = $request->file('hero_image')->store('site', 'public');
+    // } else {
+    //     unset($data['hero_image']);
+    // }
+    //     // Only update text fields the user actually filled in.
+    //     // Empty string → skip (keep the old DB value).
+    //     foreach (['company_name', 'hero_title', 'hero_description'] as $field) {
+    //         if (! $request->filled($field)) {
+    //             unset($data[$field]);
+    //         }
+    //     }
+    //     $settings->update($data);
+
+    //     return back()->with('success', 'Home page settings updated.');
+    // }
+
     public function updateSiteSettings(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'company_name' => ['nullable','string', 'max:120'],
-            'hero_title' => ['nullable','string', 'max:180'],
-            'hero_description' => ['nullable','string', 'max:1000'],
-            'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
-            'delivery_charge' => ['nullable','numeric', 'min:0', 'max:99999999.99'],
+            'company_name' => ['nullable', 'string', 'max:120'],
+            'hero_title' => ['nullable', 'string', 'max:180'],
+            'hero_description' => ['nullable', 'string', 'max:1000'],
+
+            // Multiple header image validation
+            'hero_images' => ['nullable', 'array', 'max:10'],
+            'hero_images.*' => [
+                'image',
+                'mimes:jpg,jpeg,png,webp,gif',
+                'max:5120',
+            ],
+
+            'delivery_charge' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:99999999.99',
+            ],
         ]);
+
+        // Get or create homepage settings
         $settings = SiteSetting::firstOrCreate([]);
-        
-      // Handle image upload (unchanged)
-    if ($request->hasFile('hero_image')) {
-        $this->deleteStoredImage($settings->hero_image);
-        $data['hero_image'] = $request->file('hero_image')->store('site', 'public');
-    } else {
-        unset($data['hero_image']);
-    }
-        // Only update text fields the user actually filled in.
-        // Empty string → skip (keep the old DB value).
-        foreach (['company_name', 'hero_title', 'hero_description'] as $field) {
+
+        // Save company information
+        foreach (['company_name', 'hero_title', 'hero_description', 'delivery_charge'] as $field) {
             if (! $request->filled($field)) {
                 unset($data[$field]);
             }
         }
+
         $settings->update($data);
 
-        return back()->with('success', 'Home page settings updated.');
+        // Save multiple header images
+        $images = $request->file('hero_images', []);
+
+        $nextOrder = (HeroSlide::max('sort_order') ?? -1) + 1;
+
+        // foreach ($images as $image) {
+        //     HeroSlide::create([
+        //         'image' => $image->store('hero', 'public'),
+        //         'sort_order' => $nextOrder++,
+        //         'is_active' => true,
+        //     ]);
+        // }
+
+        // Replace previous header images when new images are uploaded
+        if ($request->hasFile('hero_images')) {
+
+            // Delete previous image files from storage
+            $oldSlides = HeroSlide::all();
+
+            foreach ($oldSlides as $slide) {
+                $this->deleteStoredImage($slide->image);
+            }
+
+            // Delete previous database records
+            HeroSlide::query()->delete();
+
+            // Upload and save new images
+            foreach ($request->file('hero_images') as $index => $image) {
+
+                HeroSlide::create([
+                    'image' => $image->store('hero', 'public'),
+                    'sort_order' => $index,
+                    'is_active' => true,
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Homepage settings updated successfully.');
     }
 
     public function updateOrderStatus(Request $request, Order $order): RedirectResponse

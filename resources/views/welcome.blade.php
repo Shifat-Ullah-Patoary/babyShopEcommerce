@@ -2,70 +2,66 @@
 
 @section('content')
 
+
+
+
 {{-- =====================================================
-     HERO
+     HERO IMAGE SLIDER
 ===================================================== --}}
 
-<section
-    id="baby-hero"
-    class="relative isolate flex w-full flex-col overflow-hidden
-           bg-gradient-to-br from-rose-50 via-emerald-50 to-amber-50
-           sm:min-h-[420px] sm:flex-row sm:items-center sm:px-16 sm:py-20"
-    @if($siteSettings?->hero_image)
-        style="
-            background-image:
-                linear-gradient(90deg, rgba(253,242,248,.25), rgba(236,253,245,.10)),
-                url('{{ asset('storage/'.$siteSettings->hero_image) }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        "
-    @endif
->
-    {{-- Mobile image: displays the complete image --}}
-    @if($siteSettings?->hero_image)
+<section id="baby-hero" class="relative w-full overflow-hidden bg-rose-50">
+
+    @if($heroSlides->isNotEmpty())
+
+        <div id="hero-slider"
+             class="flex w-full transition-transform duration-700 ease-in-out">
+
+            @foreach($heroSlides as $slide)
+                <div class="w-full min-w-full shrink-0">
+                    <img
+                        src="{{ asset('storage/' . $slide->image) }}"
+                        alt="Little Nest baby shop banner {{ $loop->iteration }}"
+                        class="block h-auto w-full"
+                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                    >
+                </div>
+            @endforeach
+
+        </div>
+
+        {{-- Slider navigation dots --}}
+        @if($heroSlides->count() > 1)
+            <div class="absolute inset-x-0 bottom-3 flex justify-center gap-2 sm:bottom-5">
+
+                @foreach($heroSlides as $index => $slide)
+                    <button
+                        type="button"
+                        class="hero-dot h-2.5 w-2.5 rounded-full transition-all duration-300"
+                        data-slide="{{ $index }}"
+                        aria-label="Go to banner {{ $index + 1 }}"
+                    ></button>
+                @endforeach
+
+            </div>
+        @endif
+
+    @elseif($siteSettings?->hero_image)
+
+        {{-- Old single-image fallback --}}
         <img
-            src="{{ asset('storage/'.$siteSettings->hero_image) }}"
+            src="{{ asset('storage/' . $siteSettings->hero_image) }}"
             alt="Little Nest baby shop"
-            class="block h-auto w-full sm:hidden"
+            class="block h-auto w-full"
         >
+
+    @else
+
+        <div class="grid min-h-64 place-items-center text-rose-400">
+            <p class="font-semibold">Welcome to Little Nest</p>
+        </div>
+
     @endif
 
-    {{-- Hero content --}}
-    {{-- <div class="relative flex w-full items-center justify-between gap-8 px-5 py-10 sm:px-0 sm:py-0">
-        <div class="max-w-2xl">
-            <div class="hero-badge mb-4 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1.5 shadow-sm backdrop-blur">
-                <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-                <p class="text-[11px] font-extrabold uppercase tracking-[.18em] text-rose-500">
-                    Soft things for small people
-                </p>
-            </div>
-
-            <h1 class="hero-title my-4 max-w-xl text-4xl font-extrabold leading-tight tracking-tighter text-slate-800 sm:text-7xl">
-                {{ $siteSettings?->hero_title }}
-            </h1>
-
-            <p class="hero-description max-w-md text-base leading-relaxed text-slate-500 sm:text-lg">
-                {{ $siteSettings?->hero_description }}
-            </p>
-
-            <div class="hero-cta mt-6 flex flex-wrap gap-3">
-                <a href="#products"
-                   class="rounded-full bg-rose-400 px-6 py-3 font-bold text-white shadow-lg">
-                    Shop the collection →
-                </a>
-
-                <a href="#products"
-                   class="rounded-full bg-white/80 px-6 py-3 font-semibold text-slate-700 shadow-sm">
-                    Browse new arrivals
-                </a>
-            </div>
-        </div>
-
-        <div class="hero-heart hidden select-none text-[14rem] leading-none text-rose-300/70 sm:block" aria-hidden="true">
-            ♡
-        </div>
-    </div> --}}
 </section>
 
 
@@ -172,6 +168,75 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+/* ---------- HERO IMAGE SLIDER ---------- */
+
+const slider = document.querySelector('#hero-slider');
+
+if (slider) {
+    const dots = document.querySelectorAll('.hero-dot');
+    const totalSlides = slider.children.length;
+
+    let currentSlide = 0;
+    let autoSlide;
+
+    function showSlide(index) {
+        currentSlide = index;
+
+        slider.style.transform =
+            `translateX(-${currentSlide * 100}%)`;
+
+        dots.forEach((dot, i) => {
+            dot.classList.toggle(
+                'bg-rose-500',
+                i === currentSlide
+            );
+
+            dot.classList.toggle(
+                'bg-white',
+                i !== currentSlide
+            );
+
+            dot.classList.toggle(
+                'ring-2',
+                i === currentSlide
+            );
+
+            dot.classList.toggle(
+                'ring-rose-300',
+                i === currentSlide
+            );
+        });
+    }
+
+    function startAutoSlide() {
+        if (totalSlides <= 1) return;
+
+        autoSlide = setInterval(() => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }, 4000);
+    }
+
+    function stopAutoSlide() {
+        clearInterval(autoSlide);
+    }
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            stopAutoSlide();
+            showSlide(index);
+            startAutoSlide();
+        });
+    });
+
+    showSlide(0);
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        startAutoSlide();
+    }
+}
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
